@@ -83,7 +83,7 @@ async function transcribeWithWhisper(audio, token) {
 }
 
 async function analyzeWithGemma(transcript, person, token) {
-  const model = process.env.HF_GEMMA_MODEL || "google/gemma-2-2b-it";
+  const model = process.env.HF_GEMMA_MODEL || "google/gemma-3-12b-it";
   const endpoint = process.env.HF_CHAT_ENDPOINT || "https://router.huggingface.co/v1/chat/completions";
   const response = await fetch(endpoint, {
     method: "POST",
@@ -167,7 +167,15 @@ async function serveStatic(req, res) {
 }
 
 const server = createServer(async (req, res) => {
-  if (req.method === "GET" && req.url === "/health") return json(res, 200, { ok: true, app: "VoiceDebt" });
+  if (req.method === "GET" && req.url === "/health") {
+    return json(res, 200, {
+      ok: true,
+      app: "VoiceDebt",
+      inferenceConfigured: Boolean(process.env.HF_TOKEN),
+      whisperModel: process.env.HF_WHISPER_MODEL || "openai/whisper-large-v3",
+      gemmaModel: process.env.HF_GEMMA_MODEL || "google/gemma-3-12b-it",
+    });
+  }
   if (req.method === "POST" && req.url === "/api/analyze") return handleAnalyze(req, res);
   if (req.method === "GET" || req.method === "HEAD") return serveStatic(req, res);
   json(res, 405, { error: "Method not allowed" });

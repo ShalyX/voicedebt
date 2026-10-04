@@ -31,7 +31,7 @@ Open http://localhost:3000.
 
 - `HF_TOKEN` — Hugging Face token with Inference Providers access.
 - `HF_WHISPER_MODEL` — defaults to `openai/whisper-large-v3`.
-- `HF_GEMMA_MODEL` — defaults to `google/gemma-2-2b-it`.
+- `HF_GEMMA_MODEL` — defaults to `google/gemma-3-12b-it`.
 - `PORT` — defaults to `3000`.
 
 Gemma access on Hugging Face may require accepting Google's model terms on the model page for the account behind your token.
