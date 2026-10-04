@@ -22,7 +22,7 @@ const STARTER_DEBTS = [
 ];
 
 const processingLines = ["listening to the lore…", "detecting unanswered questions…", "finding promises you absolutely forgot…", "locating the gossip… 👀", "drafting a reply that sounds like a person…"];
-const state = { screen: "home", file: null, person: "", analysis: DEMO, debts: loadDebts(), processIndex: 0, error: "", copied: false };
+const state = { screen: "home", file: null, duration: "", person: "", analysis: DEMO, debts: loadDebts(), processIndex: 0, error: "", copied: false };
 const app = document.querySelector("#app");
 let processTimer;
 
@@ -32,6 +32,23 @@ function loadDebts() {
 function saveDebts() { localStorage.setItem("voicedebt-inbox", JSON.stringify(state.debts)); }
 function esc(value = "") { return String(value).replace(/[&<>'"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c])); }
 function openDebts() { return state.debts.filter(item => !item.cleared); }
+function formatDuration(seconds) {
+  if (!Number.isFinite(seconds) || seconds <= 0) return "";
+  const total = Math.round(seconds);
+  const mins = Math.floor(total / 60);
+  const secs = String(total % 60).padStart(2, "0");
+  return `${mins}m ${secs}s`;
+}
+function readDuration(file) {
+  return new Promise((resolve) => {
+    const audio = new Audio();
+    const url = URL.createObjectURL(file);
+    audio.preload = "metadata";
+    audio.onloadedmetadata = () => { const value = formatDuration(audio.duration); URL.revokeObjectURL(url); resolve(value); };
+    audio.onerror = () => { URL.revokeObjectURL(url); resolve(""); };
+    audio.src = url;
+  });
+}
 function waveform(active = false) { return `<div class="waveform ${active ? "active" : ""}" aria-hidden="true">${Array.from({length:34}, (_,i)=>`<span style="height:${18 + ((i*17)%54)}%;animation-delay:${(i%8)*70}ms"></span>`).join("")}</div>`; }
 function nav() { return `<nav class="nav shell"><button class="brand" data-action="home"><span class="brand-dot"></span>VoiceDebt</button><div class="nav-right"><button class="ghost" data-action="inbox">Inbox <span>${openDebts().length}</span></button><div class="privacy">open models · private by design</div></div></nav>`; }
 
@@ -50,7 +67,7 @@ function renderResult() {
   const a = state.analysis;
   return `${nav()}<section class="result shell"><div class="result-top"><button class="back" data-action="home">← another note</button><span class="vibe">${esc(a.vibe)}</span></div><div class="debt-card"><header class="debt-header"><div><div class="avatar">${esc(a.person.slice(0,1).toUpperCase())}</div><div><h2>${esc(a.person)}</h2><p>${esc(a.minutes)} · ${esc(a.age)}</p></div></div><div class="status overdue">OUTSTANDING</div></header>
   <div class="card-section story"><span>THE ACTUAL STORY</span><p>${esc(a.summary)}</p></div>
-  <div class="card-section"><span>YOU OWE THEM</span><div class="checklist">${a.debt.length ? a.debt.map(item=>`<label><input type="checkbox"><b>${esc(item.text)}</b><small>${esc(item.kind)}</small></label>`).join("") : `<p class="muted">No direct asks detected. Miracles happen.</p>`}</div></div>
+  <div class="card-section"><span>YOU OWE THEM</span><div class="checklist">${a.debt.length ? a.debt.map(item=>`<label><input type="checkbox"><b>${esc(item.text)}</b><small>${esc({question:"answer",promise:"promise",plan:"plan",send:"send",call:"call"}[item.kind] || item.kind)}</small></label>`).join("") : `<p class="muted">No direct asks detected. Miracles happen.</p>`}</div></div>
   <div class="card-section"><span>DO NOT FORGET</span><div class="remember-grid">${a.remember.map((item,i)=>`<div><i>${i===0?"✦":i===1?"◌":"👀"}</i>${esc(item)}</div>`).join("")}</div></div>
   <div class="reply-box"><div class="reply-label"><span>SUGGESTED REPLY</span><button data-action="copy">${state.copied ? "Copied ✓" : "Copy"}</button></div><p>${esc(a.reply)}</p></div><div class="card-actions"><button class="primary" data-action="copy">${state.copied ? "Copied to clipboard ✓" : "Copy reply"}</button><button class="clear" data-action="clear" data-id="${esc(a.id)}">Clear debt ✓</button></div></div><details class="transcript"><summary>See transcript</summary><p>${esc(a.transcript)}</p></details></section>`;
 }
@@ -67,7 +84,15 @@ function render() {
   if (state.screen === "processing") processTimer = setInterval(()=>{ state.processIndex=(state.processIndex+1)%processingLines.length; render(); },1250);
 }
 
-function selectFile(file) { if (!file) return; state.file=file; state.error=""; render(); }
+async function selectFile(file) {
+  if (!file) return;
+  state.file=file;
+  state.duration="";
+  state.error="";
+  render();
+  state.duration=await readDuration(file);
+  render();
+}
 async function analyze() {
   if (!state.file) { document.querySelector("#audioInput")?.click(); return; }
   state.error=""; state.processIndex=0; state.screen="processing"; render();
@@ -75,7 +100,7 @@ async function analyze() {
     const form = new FormData(); form.append("audio", state.file); if (state.person.trim()) form.append("person", state.person.trim());
     const response = await fetch("/api/analyze", { method:"POST", body:form });
     const data = await response.json(); if (!response.ok) throw new Error(data.error || "Analysis failed");
-    const next = { ...data, id: crypto.randomUUID(), age:"just now", minutes:"new note" };
+    const next = { ...data, id: crypto.randomUUID(), age:"just now", minutes: state.duration || "new note" };
     state.analysis=next; state.debts=[next,...state.debts.filter(i=>i.id!=="amaka-demo")]; saveDebts(); state.screen="result";
   } catch (error) { state.error=error instanceof Error ? error.message : "Analysis failed"; state.screen="home"; }
   render();

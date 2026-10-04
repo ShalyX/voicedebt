@@ -13,17 +13,22 @@ Return ONLY valid JSON with this exact shape:
 {
   "person": "string",
   "summary": "2-4 concise sentences capturing the actual story, with natural language rather than sterile meeting notes",
-  "debt": [{"text":"specific thing the listener should answer/do","kind":"question|promise|plan|send"}],
+  "debt": [{"text":"specific thing the listener should answer/do","kind":"question|promise|plan|send|call"}],
   "remember": ["specific detail worth acknowledging later"],
   "reply": "a warm, casual reply that acknowledges the important parts without sounding AI-generated",
   "vibe": "3-7 word description of the voice note's mood"
 }
 Rules:
-- debt should contain only things that genuinely need a response or action.
+- debt should contain only things that genuinely need a response or action, including explicit requests such as "call me when you can".
 - remember is for meaningful personal details, dates, milestones, gossip, or emotional context that should not be ignored.
+- preserve proper nouns and ambiguous words exactly as they appear in the transcript; do not silently "correct" names, places, or products.
 - preserve slang/emojis only when supported by the transcript's tone.
 - never invent facts.
 - if the person's name is unknown, use "Your friend".
+- the reply should sound like a real text message, not customer support or generic AI enthusiasm.
+- avoid filler like "That's huge!", "So exciting!", "You'll crush it!" unless that tone is strongly supported by the transcript.
+- cover every item in debt naturally and acknowledge at least one meaningful remember detail when appropriate.
+- prefer contractions, concise phrasing, and the sender/listener's casual tone.
 - keep the reply under 90 words.`;
 
 const contentTypes = {
@@ -48,7 +53,7 @@ function json(res, status, body) {
 function parseModelJson(content) {
   const cleaned = content.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
   const parsed = JSON.parse(cleaned);
-  const validKinds = new Set(["question", "promise", "plan", "send"]);
+  const validKinds = new Set(["question", "promise", "plan", "send", "call"]);
   return {
     person: typeof parsed.person === "string" ? parsed.person : "Your friend",
     summary: typeof parsed.summary === "string" ? parsed.summary : "",
@@ -134,6 +139,7 @@ async function handleAnalyze(req, res) {
 
     const transcript = await transcribeWithWhisper(audio, token);
     const analysis = await analyzeWithGemma(transcript, person, token);
+    if (person) analysis.person = person;
     return json(res, 200, { ...analysis, transcript });
   } catch (error) {
     console.error("VoiceDebt analyze error", error);
