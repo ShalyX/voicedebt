@@ -36,6 +36,13 @@ Open http://localhost:3000.
 
 Gemma access on Hugging Face may require accepting Google's model terms on the model page for the account behind your token.
 
+## Privacy
+
+- Audio is sent to Hugging Face inference providers for transcription and analysis.
+- VoiceDebt does not persist uploaded audio or transcripts on its server.
+- The browser inbox is stored locally in `localStorage` for the current browser.
+- Clearing browser storage removes that local inbox.
+
 ## Verify the build
 
 ```bash
