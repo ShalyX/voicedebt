@@ -26,7 +26,8 @@ Rules:
 - It is completely valid for "debt" to be an empty array. Do not manufacture an obligation just because a reply could be polite.
 - Requests like "call me when you can" are listener debt. Statements like "I'll call you tomorrow" are not.
 - "remember" is for meaningful personal details, dates, milestones, gossip, or sender commitments that the listener may want to remember.
-- Summaries must stay faithful to the transcript. Do not add outcomes, certainty, or causal claims the sender did not explicitly state.\n- If part of the transcript is garbled, contradictory, or semantically unclear, do not promote that phrase into the summary as if it were reliable. Omit it or describe only the surrounding high-confidence meaning.
+- Summaries must stay faithful to the transcript. Do not add outcomes, certainty, or causal claims the sender did not explicitly state.
+- If part of the transcript is garbled, contradictory, or semantically unclear, do not promote that phrase into the summary as if it were reliable. Omit it or describe only the surrounding high-confidence meaning.
 - preserve proper nouns and ambiguous words exactly as they appear in the transcript; do not silently "correct" names, places, or products.
 - preserve slang/emojis only when supported by the transcript's tone.
 - never invent facts.
@@ -62,7 +63,7 @@ function parseModelJson(content) {
   const parsed = JSON.parse(cleaned);
   const validKinds = new Set(["question", "promise", "plan", "send", "call"]);
   return {
-    person: typeof parsed.person === "string" ? parsed.person : "Your friend",
+    person: typeof parsed.person === "string" ? parsed.person : "The sender",
     summary: typeof parsed.summary === "string" ? parsed.summary : "",
     debt: Array.isArray(parsed.debt)
       ? parsed.debt.slice(0, 6).filter((item) => item && typeof item.text === "string").map((item) => ({
