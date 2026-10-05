@@ -50,3 +50,13 @@ Expected:
 
 ## Freeze rule
 After these pass: no new features. Only blocker-level bug fixes.
+
+
+## 5. Advice / logistics without a direct ask
+Use a note where the sender explains options, prices, routes, warnings, or what the listener may need to do for themselves.
+
+Expected:
+- recommendations and logistics stay in **THE ACTUAL STORY** / **DO NOT FORGET**
+- VoiceDebt does not invent a reply obligation from consequences
+- "you'll need to find your way from the gate" is not debt unless the sender explicitly asks for confirmation or action back
+- a direct imperative such as "send me X" or "call me when you can" can still be debt
