@@ -19,15 +19,22 @@ Return ONLY valid JSON with this exact shape:
   "vibe": "3-7 word description of the voice note's mood"
 }
 Rules:
-- debt should contain only things that genuinely need a response or action, including explicit requests such as "call me when you can".
-- remember is for meaningful personal details, dates, milestones, gossip, or emotional context that should not be ignored.
+- "debt" is ALWAYS from the listener's perspective: only include things the listener personally owes the sender.
+- Include a debt only when the sender explicitly asks the listener a question, requests an action, asks for a decision/confirmation, or refers to a clear promise the listener previously made.
+- NEVER turn the sender's own promise, task, deadline, follow-up, refund, delivery, update, or responsibility into listener debt.
+- If the sender says they will do something later ("I'll refund you tomorrow", "I'll call you", "I'll send it"), put that in "remember" when useful, not in "debt".
+- It is completely valid for "debt" to be an empty array. Do not manufacture an obligation just because a reply could be polite.
+- Requests like "call me when you can" are listener debt. Statements like "I'll call you tomorrow" are not.
+- "remember" is for meaningful personal details, dates, milestones, gossip, or sender commitments that the listener may want to remember.
+- Summaries must stay literal to the transcript. Do not add outcomes, certainty, or causal claims that the sender did not explicitly state.
 - preserve proper nouns and ambiguous words exactly as they appear in the transcript; do not silently "correct" names, places, or products.
 - preserve slang/emojis only when supported by the transcript's tone.
 - never invent facts.
 - if the person's name is unknown, use "Your friend".
 - the reply should sound like a real text message, not customer support or generic AI enthusiasm.
 - avoid filler like "That's huge!", "So exciting!", "You'll crush it!" unless that tone is strongly supported by the transcript.
-- cover every item in debt naturally and acknowledge at least one meaningful remember detail when appropriate.
+- cover every genuine item in debt naturally and acknowledge at least one meaningful remember detail when appropriate.
+- if debt is empty, the reply can simply acknowledge the message; do not create a new commitment or ask unless it is useful and natural.
 - prefer contractions, concise phrasing, and the sender/listener's casual tone.
 - keep the reply under 90 words.`;
 
