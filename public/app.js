@@ -50,17 +50,83 @@ function readDuration(file) {
   });
 }
 function waveform(active = false) { return `<div class="waveform ${active ? "active" : ""}" aria-hidden="true">${Array.from({length:34}, (_,i)=>`<span style="height:${18 + ((i*17)%54)}%;animation-delay:${(i%8)*70}ms"></span>`).join("")}</div>`; }
-function nav() { return `<nav class="nav shell"><button class="brand" data-action="home"><span class="brand-dot"></span>VoiceDebt</button><div class="nav-right"><button class="ghost" data-action="inbox">Inbox <span>${openDebts().length}</span></button><div class="privacy">open models · no server-side history</div></div></nav>`; }
+function nav() {
+  return `<nav class="nav shell">
+    <button class="brand" data-action="home"><span class="brand-mark"><i></i><i></i><i></i></span><span>VoiceDebt</span></button>
+    <div class="nav-right">
+      <div class="privacy">WHISPER × GEMMA</div>
+      <button class="ghost" data-action="inbox">Reply debt <span>${openDebts().length}</span></button>
+    </div>
+  </nav>`;
+}
+
+function heroVisual() {
+  return `<div class="hero-visual" aria-label="VoiceDebt turns a voice note into reply debt">
+    <div class="visual-label"><span class="live-dot"></span> LIVE EXTRACTION</div>
+    <div class="voice-card motion-card">
+      <div class="voice-card-top"><div class="mini-avatar">A</div><div><strong>Amaka</strong><small>8m 43s voice note</small></div><span>0:38</span></div>
+      ${waveform(true)}
+      <div class="transcript-peek">"...are you <mark>free Saturday?</mark> Send me that <mark>Airbnb link</mark>... my interview is Tuesday..."</div>
+    </div>
+    <div class="extract-card extract-one">
+      <span>YOU OWE THEM</span>
+      <strong>Confirm Saturday</strong>
+      <small>plan</small>
+    </div>
+    <div class="extract-card extract-two">
+      <span>YOU OWE THEM</span>
+      <strong>Send Airbnb link</strong>
+      <small>send</small>
+    </div>
+    <div class="memory-slip">
+      <span>DO NOT FORGET</span>
+      <strong>Interview · Tuesday</strong>
+    </div>
+    <div class="stage-arrow">↘</div>
+  </div>`;
+}
 
 function renderHome() {
-  return `${nav()}<section class="hero shell"><div class="eyebrow">THE VOICE NOTE INBOX FOR PEOPLE WITH GOOD INTENTIONS</div><h1>Your voice notes have <em>outstanding debt.</em></h1><p class="lead">VoiceDebt listens to the 8-minute voice note you absolutely meant to reply to and remembers the questions, plans, promises, and lore for you.</p>
-  <div class="dropzone ${state.file ? "has-file" : ""}" id="dropzone"><input id="audioInput" type="file" accept="audio/*,.m4a" hidden><div class="mic">↗</div><div><strong>${state.file ? esc(state.file.name) : "Drop a voice note"}</strong><span>${state.file ? `${(state.file.size/1024/1024).toFixed(1)} MB · ready to analyze` : "m4a, mp3, wav · up to 18MB"}</span></div>${waveform(Boolean(state.file))}</div>
-  ${state.file ? `<div class="name-row"><label>Who's talking? <span>optional</span></label><input id="personInput" value="${esc(state.person)}" placeholder="e.g. Amaka"></div>` : ""}
-  <div class="hero-actions"><button class="primary" data-action="analyze">${state.file ? "Analyze this voice note →" : "Choose a voice note →"}</button><button class="text-button" data-action="demo">or try Amaka's 8m 43s disaster</button></div>${state.error ? `<div class="error">${esc(state.error)}</div>` : ""}<p class="trust">Whisper + Gemma via Hugging Face · VoiceDebt keeps no server-side history.</p></section>`;
+  return `${nav()}
+  <section class="hero shell">
+    <div class="hero-copy">
+      <div class="eyebrow"><span>01</span> THE REPLY-DEBT LEDGER</div>
+      <h1>Your voice notes have <em>outstanding debt.</em></h1>
+      <p class="lead">Drop the voice note you meant to reply to three days ago. VoiceDebt finds the asks, promises, plans and tiny details you actually need to respond to.</p>
+      <div class="hero-actions">
+        <button class="primary" data-action="analyze">${state.file ? "Analyze this note ↗" : "Drop a voice note ↗"}</button>
+        <button class="text-button" data-action="demo">See Amaka’s 8m 43s disaster</button>
+      </div>
+      <div class="home-proof">
+        <span>OPEN MODELS</span><b>Whisper → Gemma</b>
+        <span>STORAGE</span><b>Local inbox only</b>
+      </div>
+    </div>
+    ${heroVisual()}
+  </section>
+  <section class="input-dock shell">
+    <div class="dock-heading"><span>ADD A NOTE</span><small>m4a · mp3 · wav · up to 18MB</small></div>
+    <div class="dropzone ${state.file ? "has-file" : ""}" id="dropzone">
+      <input id="audioInput" type="file" accept="audio/*,.m4a" hidden>
+      <div class="mic">↗</div>
+      <div class="file-copy"><strong>${state.file ? esc(state.file.name) : "Drop it here"}</strong><span>${state.file ? `${(state.file.size/1024/1024).toFixed(1)} MB · ${state.duration || "reading duration…"}` : "or click to choose a voice note"}</span></div>
+      ${waveform(Boolean(state.file))}
+    </div>
+    ${state.file ? `<div class="name-row"><label>Who’s talking? <span>optional</span></label><input id="personInput" value="${esc(state.person)}" placeholder="e.g. Amaka"></div>` : ""}
+    ${state.error ? `<div class="error">${esc(state.error)}</div>` : ""}
+    <p class="trust">Audio is processed through Hugging Face inference. VoiceDebt keeps no server-side history.</p>
+  </section>`;
 }
 
 function renderProcessing() {
-  return `${nav()}<section class="processing shell narrow"><div class="processing-orb"><div class="ring"></div><span>🎙️</span></div><div class="eyebrow">ANALYZING ${esc((state.person || "VOICE NOTE").toUpperCase())}</div><h2>${processingLines[state.processIndex]}</h2>${waveform(true)}<p>Whisper transcribes. Gemma separates what happened from what you actually owe them.</p></section>`;
+  return `${nav()}<section class="processing shell narrow">
+    <div class="processing-index">VOICE NOTE → REPLY DEBT</div>
+    <div class="processing-orb"><div class="ring"></div><span>●</span></div>
+    <div class="eyebrow"><span>02</span> ANALYZING ${esc((state.person || "VOICE NOTE").toUpperCase())}</div>
+    <h2>${processingLines[state.processIndex]}</h2>
+    ${waveform(true)}
+    <div class="processing-steps"><span class="${state.processIndex > 0 ? "done" : "active"}">TRANSCRIBE</span><i>→</i><span class="${state.processIndex > 1 ? "done" : state.processIndex === 1 ? "active" : ""}">UNDERSTAND</span><i>→</i><span class="${state.processIndex > 3 ? "done" : state.processIndex >= 2 ? "active" : ""}">EXTRACT DEBT</span></div>
+  </section>`;
 }
 
 function renderResult() {
@@ -74,11 +140,34 @@ function renderResult() {
 
 function renderInbox() {
   const open = openDebts();
-  return `${nav()}<section class="inbox shell"><div class="inbox-heading"><div><div class="eyebrow">REPLY DEBT</div><h1>You owe ${open.length} ${open.length===1?"person":"people"} replies.</h1></div><button class="primary small" data-action="home">+ Add voice note</button></div><div class="debt-list">${open.map(item=>`<article class="${item.cleared?"paid":""}" data-action="open" data-id="${esc(item.id)}"><div class="avatar">${esc(item.person.slice(0,1).toUpperCase())}</div><div class="list-main"><div><h3>${esc(item.person)}</h3><span>${esc(item.minutes)}</span></div><p>${esc(item.summary)}</p><div class="chips">${item.debt.slice(0,2).map(d=>`<span>${esc(d.text)}</span>`).join("")}</div></div><div class="age ${item.age.includes("days")?"danger":""}">${item.cleared?"cleared ✓":esc(item.age)}</div></article>`).join("")}</div><p class="inbox-foot">You are not a bad friend. You are simply carrying <b>${open.reduce((sum,item)=>sum+item.debt.length,0)} unresolved voice-note obligations.</b></p></section>`;
+  const obligations = open.reduce((sum,item)=>sum+item.debt.length,0);
+  if (!open.length) {
+    return `${nav()}<section class="empty-inbox shell">
+      <div class="empty-stamp">0</div>
+      <div class="eyebrow"><span>00</span> REPLY DEBT</div>
+      <h1>Inbox clear.<br><em>You are free.</em></h1>
+      <p>No unanswered questions. No links you forgot to send. No “call me when you can” hanging over your head.</p>
+      <button class="primary" data-action="home">Add another voice note ↗</button>
+    </section>`;
+  }
+  return `${nav()}<section class="inbox shell">
+    <div class="inbox-heading">
+      <div><div class="eyebrow"><span>${String(open.length).padStart(2,"0")}</span> REPLY DEBT</div><h1>You owe ${open.length} ${open.length===1?"person":"people"} replies.</h1></div>
+      <div class="ledger-total"><span>OPEN OBLIGATIONS</span><strong>${obligations}</strong></div>
+    </div>
+    <div class="debt-list">${open.map((item,index)=>`<article data-action="open" data-id="${esc(item.id)}">
+      <div class="ledger-no">${String(index+1).padStart(2,"0")}</div>
+      <div class="avatar">${esc(item.person.slice(0,1).toUpperCase())}</div>
+      <div class="list-main"><div><h3>${esc(item.person)}</h3><span>${esc(item.minutes)}</span></div><p>${esc(item.summary)}</p><div class="chips">${item.debt.slice(0,3).map(d=>`<span>${esc(d.text)}</span>`).join("")}</div></div>
+      <div class="age ${item.age.includes("days")?"danger":""}">${esc(item.age)}</div>
+    </article>`).join("")}</div>
+    <div class="inbox-foot"><span>VOICEDEBT LEDGER</span><b>${obligations} unresolved obligation${obligations===1?"":"s"}</b><button class="primary small" data-action="home">+ Add note</button></div>
+  </section>`;
 }
 
 function render() {
   clearInterval(processTimer);
+  document.body.dataset.screen = state.screen;
   app.innerHTML = state.screen === "home" ? renderHome() : state.screen === "processing" ? renderProcessing() : state.screen === "result" ? renderResult() : renderInbox();
   bind();
   if (state.screen === "processing") processTimer = setInterval(()=>{ state.processIndex=(state.processIndex+1)%processingLines.length; render(); },1250);
