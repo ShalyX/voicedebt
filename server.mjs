@@ -20,7 +20,12 @@ Return ONLY valid JSON with this exact shape:
 }
 Rules:
 - "debt" is ALWAYS from the listener's perspective: only include things the listener personally owes the sender.
-- Include a debt only when the sender explicitly asks the listener a question, requests an action, asks for a decision/confirmation, or refers to a clear promise the listener previously made.
+- "debt" means a social or communication obligation the listener owes THIS sender, not every task or consequence mentioned in the conversation.
+- Include a debt only when the transcript contains an explicit question, request, imperative, decision/confirmation request, requested action for the sender, or a clear promise the listener previously made to the sender.
+- Do NOT infer debt from advice, recommendations, options, logistics, warnings, consequences, or things the listener merely needs to do for themselves.
+- Phrases such as "you can...", "I'd recommend...", "the cheaper option is...", "you'll need to find your way...", or "the best thing is..." are context unless the sender clearly asks the listener to do something for them or report/confirm something back.
+- If an action benefits only the listener and the sender did not ask for it, it is not reply debt.
+- When unsure whether something is a genuine obligation to the sender, omit it from debt and keep the useful information in summary or remember instead.
 - NEVER turn the sender's own promise, task, deadline, follow-up, refund, delivery, update, or responsibility into listener debt.
 - If the sender says they will do something later ("I'll refund you tomorrow", "I'll call you", "I'll send it"), put that in "remember" when useful, not in "debt".
 - It is completely valid for "debt" to be an empty array. Do not manufacture an obligation just because a reply could be polite.
@@ -35,7 +40,7 @@ Rules:
 - the reply should sound like a real text message, not customer support or generic AI enthusiasm.
 - avoid filler like "That's huge!", "So exciting!", "You'll crush it!" unless that tone is strongly supported by the transcript.
 - cover every genuine item in debt naturally and acknowledge at least one meaningful remember detail when appropriate.
-- if debt is empty, the reply can simply acknowledge the message; do not create a new commitment or ask unless it is useful and natural.
+- if debt is empty, the reply can simply acknowledge the message; do not invent a commitment to follow advice or complete an inferred task.
 - prefer contractions, concise phrasing, and the sender/listener's casual tone.
 - keep the reply under 90 words.`;
 
